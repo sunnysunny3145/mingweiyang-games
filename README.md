@@ -21,6 +21,13 @@ python3 -m http.server 4173
 # Open http://localhost:4173
 ```
 
+If the system PHP binary cannot start (for example, a broken Homebrew shared
+library), an isolated test runtime avoids changing the global PHP installation:
+
+```sh
+PHP_BIN=php-wasm-cli npm exec --yes --package=node@24 --package=@php-wasm/cli@3.1.56 -- node --test
+```
+
 Practice works without the backend. Login in a cross-site localhost iframe can be
 blocked by browser cookie policy; use the deployed games subdomain for ranked
 end-to-end testing. Do not weaken cookie security to make localhost work.
@@ -53,6 +60,8 @@ Use a nickname: usernames and best scores are public. Emails are private;
 passwords are hashed by WordPress. Email ownership is not verified on signup.
 Password recovery uses WordPress mail and requires working outbound email from
 the host. Do not promise recovery until email delivery has been tested.
+After signing in, return to the game tab and click the profile refresh button;
+this reloads the cookie-authenticated bridge and its REST nonce.
 
 The site saves the best score, best-run time, completed-run count and last result.
 It does **not** resume a round in the middle of a jump. A player can export their
@@ -136,3 +145,22 @@ rate counters, plus the registration capacity counter.
 Game-state export is implemented; an importer for an as-yet-unselected database
 is not. Future free/low-cost databases still have quotas and may require payment
 as traffic grows. Export before ending Northwest hosting.
+
+## Verification
+
+The automated suite checks deterministic JavaScript/PHP replay parity, malformed
+and oversized replays, authorization boundaries, export isolation, idempotent
+score submission, origin-checked messaging and nonce refresh after login.
+
+Live WordPress checks also exercised signup, password login, logout, server-side
+score calculation, accelerated/forged-score rejection, score persistence after
+signing in again, own-data export and administrator backup export. Temporary
+test accounts and their scores were removed afterwards.
+
+Password-reset email delivery has not been verified. HTTPS issuance for a newly
+bound GitHub Pages domain is separate from a successful code deployment; do not
+bypass certificate warnings or enable authenticated play over HTTP.
+
+The deployed games domain has a valid GitHub-managed certificate and enforced
+HTTPS. Authenticated profile loading through the cross-origin bridge, mobile
+touch controls and the homepage game link have been checked in the browser.
