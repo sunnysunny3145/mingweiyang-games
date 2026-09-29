@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Mingwei Games
  * Description: Account-backed platform game records, replay validation and portable exports.
- * Version: 1.0.0
+ * Version: 1.0.1
  * Requires PHP: 8.0
  */
 
@@ -301,7 +301,7 @@ function mwg_account(): void {
     nocache_headers();
     header('X-Frame-Options: DENY');
     header("Content-Security-Policy: default-src 'none'; style-src 'unsafe-inline'; form-action 'self'; frame-ancestors 'none'; base-uri 'none'");
-    header('Referrer-Policy: no-referrer');
+    header('Referrer-Policy: same-origin');
     $error = '';
     if (isset($_GET['logout'])) {
         if (!wp_verify_nonce(sanitize_text_field(wp_unslash($_GET['_mwg_nonce'] ?? '')), 'mwg_logout')) {
@@ -321,7 +321,7 @@ function mwg_account(): void {
         }
         if (is_wp_error($gate)) {
             $error = $gate->get_error_message();
-        } elseif (!wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['_mwg_nonce'] ?? '')), 'mwg_account')) {
+        } elseif (!wp_verify_nonce(sanitize_text_field(mwg_form_value('_mwg_nonce')), 'mwg_account')) {
             $error = 'This form expired. Please reload and try again.';
         } elseif (is_user_logged_in()) {
             $error = 'You are already signed in. Return to the game or sign out first.';
