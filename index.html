@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#f5f3ed">
+  <meta name="description" content="星屿漫游：和小小星际邮差一起跳过浮岛，收集星光。原创免费平台跳跃小游戏，支持键盘和触屏。">
+  <title>星屿漫游 · Mingwei Games</title>
+  <link rel="stylesheet" href="./styles.css">
+  <script type="module" src="./app.js"></script>
+</head>
+<body>
+  <div class="shell">
+    <header class="site-header">
+      <a class="brand" href="./" aria-label="Mingwei Games 首页"><span class="brand-icon">✦</span><span>MINGWEI<span class="brand-light"> / GAMES</span></span></a>
+      <span class="header-note"><span class="status-dot"></span> 给日常，一点小冒险</span>
+      <a class="account-link" id="account-link" href="https://mingweiyang.com/wp-admin/admin-post.php?action=mwg_account" target="_blank" rel="noopener">登录 / 注册 <span>↗</span></a>
+    </header>
+
+    <main>
+      <section class="intro" aria-labelledby="game-title">
+        <div>
+          <div class="eyebrow"><span class="tiny-star">✦</span> LITTLE WORLDS, BIG ADVENTURES</div>
+          <h1 id="game-title">星屿漫游<span class="title-star">✧</span></h1>
+          <p>穿过软绵绵的云，收集散落的星光。<br class="mobile-break">今天，也做一回勇敢的小小探险家。</p>
+        </div>
+        <div class="level-stamp"><span>第一站</span><strong>云朵花园</strong><span>01 / THE CLOUD GARDEN</span></div>
+      </section>
+
+      <div class="main-grid">
+        <section class="game-section" aria-label="平台跳跃游戏">
+          <div class="game-card">
+            <div class="game-topbar">
+              <div class="world-label"><span class="status-dot"></span> 云朵花园 <span class="divider">/</span> <span id="mode-label">自由练习</span></div>
+              <span class="level-tag">LEVEL 01</span>
+            </div>
+            <div class="canvas-wrap" id="canvas-wrap">
+              <canvas id="game" width="960" height="540" tabindex="0" aria-label="星屿漫游。方向键或 A、D 移动，空格、W 或上箭头跳跃。跳过四个缺口，抵达右侧星星门。">你的浏览器不支持 Canvas，请使用较新的浏览器。</canvas>
+              <div class="hud" aria-label="当前游戏数据">
+                <span class="hud-pill"><span class="coin-symbol">✦</span> <b id="coin-count">0</b><small>/ 15</small></span>
+                <span class="hud-pill clock"><span>◷</span> <b id="time-count">00:00</b><small>/ 02:00</small></span>
+              </div>
+              <div class="game-overlay" id="overlay">
+                <div class="overlay-badge" id="overlay-badge">一封寄往星星的信</div>
+                <h2 id="overlay-title">小小步伐，大大世界</h2>
+                <p id="overlay-text">和星际邮差「小屿」一起，<br>跳过浮岛，把星光送到终点。</p>
+                <button class="button primary" id="overlay-play">出发去冒险 <span>→</span></button>
+                <small id="overlay-note">无需登录 · 随时开始练习</small>
+              </div>
+              <div class="progress-track" aria-label="关卡进度"><div id="progress-fill"></div></div>
+            </div>
+            <div class="touch-controls" aria-label="触屏游戏控制">
+              <div class="direction-controls"><button data-control="left" aria-label="向左移动">←</button><button data-control="right" aria-label="向右移动">→</button></div>
+              <span>去追一颗星星吧</span>
+              <button data-control="jump" class="jump-button" aria-label="跳跃">跳跃 ↑</button>
+            </div>
+            <div class="game-footer">
+              <div class="key-help"><span><kbd>←</kbd> <kbd>→</kbd> 移动</span><span><kbd>SPACE</kbd> 跳跃</span><span class="alt-keys">也支持 A / D / W</span></div>
+              <span class="footer-flower">✳</span>
+            </div>
+          </div>
+          <div class="play-actions">
+            <button class="button secondary" id="practice-play">开始练习 <span>↻</span></button>
+            <button class="button primary" id="ranked-play" disabled>开始排位 <span>↗</span></button>
+            <span class="practice-note">练习不上传成绩；排位需先登录。</span>
+          </div>
+          <div class="notice" id="game-status" role="status" aria-live="polite">先练习一下？收集星星，越快到达终点，分数越高。</div>
+          <button class="button secondary retry" id="retry-finish" hidden>重试保存本次成绩</button>
+          <div class="tips-grid">
+            <div><span class="tip-icon yellow">✦</span><h3>收集一点闪光</h3><p>每颗星星 +250 分。高处也有惊喜，试着跳上小平台。</p></div>
+            <div><span class="tip-icon mint">↗</span><h3>勇敢跳过去</h3><p>靠近岛屿边缘时起跳。掉落会回到起点，每次扣 500 分。</p></div>
+            <div><span class="tip-icon lilac">⚑</span><h3>留下你的足迹</h3><p>120 秒内抵达星星门。基础 10,000 分，剩余每秒 +120 分。</p></div>
+          </div>
+        </section>
+
+        <aside class="sidebar">
+          <section class="panel profile-panel" aria-labelledby="profile-title">
+            <div class="panel-eyebrow">YOUR LITTLE CORNER</div>
+            <div class="profile-heading"><div class="avatar" aria-hidden="true">✿</div><div><h2 id="profile-title">冒险者，你好</h2><span id="profile-subtitle">正在连接你的星光档案…</span></div></div>
+            <div class="profile-stats"><div><strong id="best-score">—</strong><span>最佳成绩</span></div><div><strong id="run-count">—</strong><span>完成排位</span></div></div>
+            <p class="small-copy">登录后，最佳成绩与完成次数会保存在 WordPress 账号中；不保存关卡中途进度。</p>
+            <div class="profile-actions"><button id="refresh-profile" class="text-button">登录后刷新 ↻</button><button id="export-data" class="text-button" disabled>导出数据 ↓</button><a id="logout-link" class="text-button" href="#" target="_blank" rel="noopener" hidden>退出 ↗</a></div>
+            <p id="connection-status" class="connection-status" role="status">正在连接账号服务…</p>
+          </section>
+
+          <section class="panel leaderboard-panel" aria-labelledby="leaderboard-title">
+            <div class="leaderboard-heading"><div><div class="panel-eyebrow">A SKY FULL OF STARS</div><h2 id="leaderboard-title">星光排行榜 <span>✧</span></h2></div><button class="icon-button" id="refresh-leaderboard" aria-label="刷新排行榜">↻</button></div>
+            <div class="board-labels"><span>冒险者</span><span>最佳分数</span></div>
+            <ol id="leaderboard" class="leaderboard"></ol>
+            <p id="leaderboard-status" class="board-status" role="status">正在寻找闪亮的冒险者…</p>
+            <div class="board-bottom"><span class="status-dot"></span> 全站公开 · 前 20 名</div>
+          </section>
+          <div class="postcard"><span>✉</span><p>不必每次都第一名，<br>快乐本身就是奖励。</p><small>A LITTLE NOTE FOR YOU</small></div>
+        </aside>
+      </div>
+    </main>
+    <footer class="site-footer"><span>✦ MINGWEI GAMES</span><span>原创小世界 · 为好奇心而造</span><a href="https://mingweiyang.com" target="_blank" rel="noopener">回到主站 ↗</a></footer>
+  </div>
+  <iframe id="backend-bridge" title="WordPress 账号连接" hidden></iframe>
+</body>
+</html>

@@ -1,0 +1,13 @@
+{
+  "name": "mingweiyang-games",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "星屿漫游 — an original canvas platform game with WordPress replay verification",
+  "scripts": {
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
