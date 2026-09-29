@@ -155,8 +155,9 @@ async function refreshLeaderboard() {
   }
 }
 $('refresh-profile').addEventListener('click', () => {
-  if (!ready) { loadBridge(); waitForBridge(); }
-  else refreshProfile();
+  // A bridge opened before login has an anonymous nonce; reload to renew it.
+  loadBridge();
+  waitForBridge();
 });
 $('refresh-leaderboard').addEventListener('click', refreshLeaderboard);
 $('export-data').addEventListener('click', async () => {

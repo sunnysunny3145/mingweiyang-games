@@ -21,6 +21,8 @@ function wp_salt($type) { return 'test-only-salt'; }
 function admin_url($path) { return 'https://mingweiyang.com/wp-admin/' . $path; }
 function set_url_scheme($url, $scheme) { return $url; }
 function wp_nonce_url($url, ...$args) { return $url . '&test_nonce=1'; }
+function wp_create_nonce($action) { return 'test-nonce'; }
+function add_query_arg($args, $url) { return $url . '&' . http_build_query($args); }
 function wp_unslash($value) { return stripslashes($value); }
 function wp_json_encode($value) { return json_encode($value); }
 function current_time(...$args) { return gmdate('Y-m-d H:i:s'); }
@@ -76,6 +78,9 @@ $player = [
 $wpdb->players[1] = $player;
 $wpdb->players[2] = array_merge($player, ['player_id' => 'player-two', 'user_id' => 2]);
 check(mwg_authorize() === true, 'Authenticated read-capable user must be authorized');
+$profile = mwg_rest(new WP_REST_Request('profile'));
+parse_str(parse_url($profile['logoutUrl'], PHP_URL_QUERY), $logout_query);
+check(isset($logout_query['logout'], $logout_query['_mwg_nonce']), 'JSON logout URLs must use raw ampersands, not HTML entities');
 $export = mwg_rest(new WP_REST_Request('export', ['user_id' => 2]));
 check($export['player']['id'] === 'player-one', 'Caller-supplied user ID must not select another player');
 check(!isset($export['player']['user_id']), 'Own portable export does not need WordPress IDs');

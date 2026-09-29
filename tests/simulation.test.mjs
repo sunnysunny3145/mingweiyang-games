@@ -2,6 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+import { readFileSync } from 'node:fs';
+import vm from 'node:vm';
 import { createWinningReplay, simulate, MAX_TICKS } from '../sim.js';
 
 const verifier = fileURLToPath(new URL('../wordpress/mwg-games/simulation.php', import.meta.url));
@@ -58,4 +60,60 @@ test('idle, full-length, jumps and seeded random inputs stay in parity', () => {
   }).join(''));
   const inputs = ['', '0'.repeat(MAX_TICKS), '3'.repeat(1000), '2'.repeat(2200), ...random];
   assert.deepEqual(php(inputs), inputs.map(simulate));
+});
+
+test('login refresh reloads an already-ready bridge before requesting a fresh profile', async () => {
+  const nodes = new Map();
+  const windowListeners = new Map();
+  const messages = [];
+  const navigations = [];
+  function node(id) {
+    if (!nodes.has(id)) nodes.set(id, {
+      listeners: new Map(),
+      addEventListener(type, handler) { this.listeners.set(type, handler); },
+      replaceChildren() {},
+      getBoundingClientRect: () => ({ width: 960, height: 540 }),
+      getContext: () => ({}),
+    });
+    return nodes.get(id);
+  }
+  const iframe = node('backend-bridge');
+  iframe.contentWindow = { postMessage: (message, origin) => messages.push({ message, origin }) };
+  Object.defineProperty(iframe, 'src', { set: value => navigations.push(value) });
+  const context = vm.createContext({
+    document: { getElementById: node, querySelectorAll: () => [], addEventListener() {} },
+    window: { addEventListener: (type, handler) => windowListeners.set(type, handler) },
+    location: { hostname: 'games.mingweiyang.com' },
+    createState: () => ({}),
+    matchMedia: () => ({ matches: false }),
+    ResizeObserver: class { observe() {} },
+    requestAnimationFrame() {},
+    setTimeout: () => 1,
+    clearTimeout() {},
+    URL,
+  });
+  const source = readFileSync(new URL('../app.js', import.meta.url), 'utf8').replace(/^import .*;\n/, '');
+  vm.runInContext(source, context);
+  const receive = windowListeners.get('message');
+  const ready = () => receive({
+    origin: 'https://mingweiyang.com', source: iframe.contentWindow, data: { source: 'mwg-backend-ready' },
+  });
+  assert.equal(navigations.length, 1);
+  ready();
+  assert.equal(messages.filter(({ message }) => message.method === 'profile').length, 1);
+  node('refresh-profile').listeners.get('click')();
+  assert.equal(navigations.length, 2);
+  assert.equal(navigations[1], 'https://mingweiyang.com/wp-admin/admin-post.php?action=mwg_bridge');
+  assert.equal(messages.filter(({ message }) => message.method === 'profile').length, 1,
+    'Do not send profile through the stale anonymous bridge');
+  ready();
+  assert.equal(messages.filter(({ message }) => message.method === 'profile').length, 2);
+  for (const { message, origin } of messages) {
+    assert.equal(origin, 'https://mingweiyang.com');
+    receive({
+      origin, source: iframe.contentWindow,
+      data: { source: 'mwg-backend', id: message.id, ok: false, error: { message: 'Test cleanup' } },
+    });
+  }
+  await new Promise(resolve => setImmediate(resolve));
 });

@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Mingwei Games
  * Description: Account-backed platform game records, replay validation and portable exports.
- * Version: 1.0.1
+ * Version: 1.0.3
  * Requires PHP: 8.0
  */
 
@@ -93,6 +93,10 @@ function mwg_account_url(): string {
     return set_url_scheme(admin_url('admin-post.php?action=mwg_account'), 'https');
 }
 
+function mwg_logout_url(): string {
+    return add_query_arg(['logout' => '1', '_mwg_nonce' => wp_create_nonce('mwg_logout')], mwg_account_url());
+}
+
 function mwg_form_value(string $key): string {
     return isset($_POST[$key]) && is_string($_POST[$key]) ? wp_unslash($_POST[$key]) : '';
 }
@@ -155,8 +159,7 @@ function mwg_rest(WP_REST_Request $request) {
                 'runs' => (int) $player['completed_runs'],
             ] : null,
             'accountUrl' => mwg_account_url(),
-            'logoutUrl' => is_user_logged_in()
-                ? wp_nonce_url(mwg_account_url() . '&logout=1', 'mwg_logout', '_mwg_nonce') : null,
+            'logoutUrl' => is_user_logged_in() ? mwg_logout_url() : null,
         ];
     }
     if ($action === 'leaderboard') {
@@ -308,7 +311,7 @@ function mwg_account(): void {
             wp_die('Invalid logout link. Refresh the game and try again.', '', ['response' => 403]);
         }
         wp_logout();
-        wp_redirect(MWG_APP, 303);
+        wp_safe_redirect(mwg_account_url(), 303);
         exit;
     }
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -369,7 +372,7 @@ function mwg_account(): void {
                     if (is_wp_error($player)) {
                         $error = $player->get_error_message();
                     } else {
-                        wp_redirect(MWG_APP, 303);
+                        wp_safe_redirect(mwg_account_url(), 303);
                         exit;
                     }
                 }
@@ -392,7 +395,7 @@ function mwg_account(): void {
     <?php if ($error): ?><p class="error" role="alert"><?php echo esc_html($error); ?></p><?php endif; ?>
     <?php if (is_user_logged_in()): ?>
         <section><h2>You are signed in</h2><p>Return to the game and refresh your profile.</p>
-        <a href="<?php echo esc_url(wp_nonce_url(mwg_account_url() . '&logout=1', 'mwg_logout', '_mwg_nonce')); ?>">Sign out</a></section>
+        <a href="<?php echo esc_url(mwg_logout_url()); ?>">Sign out</a></section>
     <?php else: foreach (['login' => 'Sign in', 'register' => 'Create account'] as $mode => $label): ?>
         <section><h2><?php echo esc_html($label); ?></h2><form method="post" action="<?php echo esc_url(mwg_account_url()); ?>">
         <?php wp_nonce_field('mwg_account', '_mwg_nonce'); ?>
